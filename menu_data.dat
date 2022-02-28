@@ -74,7 +74,7 @@ File/Save _binary data..., Item
 #endif
 
 File/separator, Separator
-File/E_xit..., Item, F10
+File/E_xit..., Item
 
 _Options, Branch
 Options/_General..., Item, F4
