@@ -169,6 +169,8 @@ MENU_DETAIL( menu_machine_detail );
 MENU_CALLBACK( menu_machine_debugger );
 MENU_CALLBACK( menu_machine_pokefinder );
 MENU_CALLBACK( menu_machine_pokememory );
+MENU_CALLBACK( menu_machine_spamkeys_start );
+MENU_CALLBACK( menu_machine_spamkeys_stop );
 MENU_CALLBACK( menu_machine_memorybrowser );
 
 MENU_CALLBACK( menu_help_keyboard );

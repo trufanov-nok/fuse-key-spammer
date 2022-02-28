@@ -987,3 +987,18 @@ gtkui_menubar_get_height( void )
 
   return alloc.height;
 }
+
+
+void
+menu_machine_spamkeys_start( GtkAction *gtk_action GCC_UNUSED,
+                         gpointer data GCC_UNUSED )
+{
+}
+
+void
+menu_machine_spamkeys_stop( GtkAction *gtk_action GCC_UNUSED,
+                         gpointer data GCC_UNUSED )
+{
+}
+
+
