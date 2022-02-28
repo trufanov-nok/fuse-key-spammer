@@ -989,16 +989,81 @@ gtkui_menubar_get_height( void )
 }
 
 
+static gboolean spam_inited = FALSE;
+static gboolean spam_started = FALSE;
+
+static int period = 0;
+
+guint keyval1 = GDK_KEY_o;
+guint keyval2 = GDK_KEY_p;
+GdkKeymapKey* keys1;
+GdkKeymapKey* keys2;
+
+void init_spam()
+{
+    gint n_keys;
+    gdk_keymap_get_entries_for_keyval(gdk_keymap_get_default(),
+                                      keyval1,
+                                      &keys1,
+                                      &n_keys);
+    gdk_keymap_get_entries_for_keyval(gdk_keymap_get_default(),
+                                      keyval2,
+                                      &keys2,
+                                      &n_keys);
+    spam_inited = TRUE;
+}
+
+static gboolean
+spam_key(gpointer data)
+{
+    GdkEvent* event;
+    if (period & 1) {
+        event = gdk_event_new(GDK_KEY_RELEASE);
+    } else {
+        if (!spam_started) {
+            period = 0;
+            return spam_started;
+        }
+        event = gdk_event_new(GDK_KEY_PRESS);
+    }
+
+    if (period & 2) {
+        event->key.keyval = keyval1;
+        event->key.hardware_keycode =  keys1[0].keycode;
+        event->key.group = keys1[0].group;
+    } else {
+        event->key.keyval = keyval2;
+        event->key.hardware_keycode =  keys2[0].keycode;
+        event->key.group = keys2[0].group;
+    }
+
+    event->key.window = gtk_widget_get_window(GTK_WIDGET(gtkui_window));
+    gdk_event_put(event);
+
+    period++;
+
+    if (period > 3) period = 0;
+    return TRUE;
+}
+
 void
 menu_machine_spamkeys_start( GtkAction *gtk_action GCC_UNUSED,
-                         gpointer data GCC_UNUSED )
+                             gpointer data GCC_UNUSED )
 {
+    if (spam_started) return;
+    if (!spam_inited) {
+        init_spam();
+    }
+
+    spam_started = TRUE;
+    g_timeout_add ( 1000/100, spam_key, NULL);
 }
 
 void
 menu_machine_spamkeys_stop( GtkAction *gtk_action GCC_UNUSED,
-                         gpointer data GCC_UNUSED )
+                            gpointer data GCC_UNUSED )
 {
+    spam_started = FALSE;
 }
 
 
