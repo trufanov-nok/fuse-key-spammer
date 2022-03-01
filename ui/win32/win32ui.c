@@ -1238,12 +1238,69 @@ win32ui_process_messages( int process_queue_once )
   /* FIXME: somewhere there should be return msg.wParam */
 }
 
-void menu_machine_spamkeys_start( int action )
+static int spam_started = 0;
+static int period = 0;
+static int key1_pressed = 0;
+static int key2_pressed = 0;
+#define IDT_TIMER3 1003
+void spam_key(
+  HWND unnamedParam1,
+  UINT unnamedParam2,
+  UINT_PTR unnamedParam3,
+  DWORD unnamedParam4)
 {
 
+    int msg;
+    int pressed;
+    if (period & 1) {
+        msg = WM_KEYUP;
+        pressed = -1;
+    } else {
+        if (!spam_started) {
+            if (key1_pressed <=0 && key2_pressed<=0) {
+                key1_pressed = key2_pressed = period = 0;
+                KillTimer(fuse_hWnd, IDT_TIMER3);
+            }
+            return;
+        }
+
+        msg = WM_KEYDOWN;
+        pressed = 1;
+    }
+
+
+    char key;
+    if (period & 2) {
+        key = 'O';
+        key1_pressed += pressed;
+    } else {
+        key = 'P';
+        key2_pressed += pressed;
+    }
+
+    SendMessage(fuse_hWnd, msg, key, 0);
+
+    if (period++ > 3) period = 0;
+}
+
+
+void menu_machine_spamkeys_start( int action )
+{
+    if (spam_started) {
+        return;
+    }
+    SetTimer(fuse_hWnd,
+        IDT_TIMER3,
+        1000/100,
+        (TIMERPROC) spam_key);
+    spam_started = 1;
 }
 
 void menu_machine_spamkeys_stop( int action )
 {
+    spam_started = 0;
+    // just for safety
+    SendMessage(fuse_hWnd, WM_KEYUP, 'O', 0);
+    SendMessage(fuse_hWnd, WM_KEYUP, 'P', 0);
 
 }
